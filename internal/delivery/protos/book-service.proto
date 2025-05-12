@@ -25,12 +25,6 @@ message Book {
   optional string genre = 5;
 }
 
-message User {
-  string user_id = 1;
-  string role = 2;
-  string login = 3;
-}
-
 message AddBookRequest {
   string title = 1;
   string author = 2;
