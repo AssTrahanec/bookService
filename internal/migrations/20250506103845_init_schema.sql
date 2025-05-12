@@ -32,4 +32,3 @@ CREATE INDEX idx_users_books_book_id ON users_books(book_id);
 DROP TABLE IF EXISTS users_books;
 DROP TABLE IF EXISTS books;
 DROP TABLE IF EXISTS users;
-

@@ -1,0 +1,80 @@
+syntax = "proto3";
+
+package bookService;
+
+option go_package = "bookService/internal/delivery/protos/gen";
+
+service LibraryService {
+  rpc AddBook (AddBookRequest) returns (Book);
+  rpc GetBook (GetBookRequest) returns (Book);
+  rpc UpdateBook (UpdateBookRequest) returns (Book);
+  rpc DeleteBook (DeleteBookRequest) returns (DeleteBookResponse);
+  rpc ListBooks (ListBooksRequest) returns (ListBooksResponse);
+
+  rpc AddBookToUser (UserBookRequest) returns (AddUserBookResponse);
+  rpc RemoveBookFromUser (UserBookRequest) returns (RemoveBookFromUserResponse);
+  rpc GetUserBooks (GetUserBooksRequest) returns (ListBooksResponse);
+}
+
+
+message Book {
+  string book_id = 1;
+  string title = 2;
+  string author = 3;
+  optional int32 publication_year = 4;
+  optional string genre = 5;
+}
+
+message AddBookRequest {
+  string title = 1;
+  string author = 2;
+  optional int32 publication_year = 3;
+  optional string genre = 4;
+}
+
+message GetBookRequest {
+  string book_id = 1;
+}
+
+message UpdateBookRequest {
+  string book_id = 1;
+  optional string title = 2;
+  optional string author = 3;
+  optional int32 publication_year = 4;
+  optional string genre = 5;
+}
+
+message DeleteBookRequest {
+  string book_id = 1;
+}
+
+message ListBooksRequest {
+  optional string author = 1;
+  optional int32 publication_year = 2;
+  optional string genre = 3;
+}
+
+message ListBooksResponse {
+  repeated Book books = 1;
+}
+
+message UserBookRequest {
+  string user_id = 1;
+  string book_id = 2;
+}
+
+message GetUserBooksRequest {
+  string user_id = 1;
+  optional string author = 2;
+  optional int32 publication_year = 3;
+  optional string genre = 4;
+}
+message DeleteBookResponse {
+  string book_id = 1;
+}
+message AddUserBookResponse{
+  string book_id = 1;
+}
+message RemoveBookFromUserResponse{
+  string book_id = 1;
+}
