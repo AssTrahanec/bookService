@@ -1,0 +1,11 @@
+env: "local" # dev, prod
+grpc:
+  port: 44044
+  timeout: 5s
+db:
+  username: "postgres"
+  host: "localhost"
+  port: 5432
+  dbname: "book_service_db"
+  sslmode: "disable"
+  password: "qwerty"
