@@ -4,7 +4,7 @@ package bookService;
 
 option go_package = "bookService/internal/delivery/protos/gen";
 
-service LibraryService {
+service BookService {
   rpc AddBook (AddBookRequest) returns (Book);
   rpc GetBook (GetBookRequest) returns (Book);
   rpc UpdateBook (UpdateBookRequest) returns (Book);

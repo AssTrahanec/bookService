@@ -744,8 +744,8 @@ const file_book_service_proto_rawDesc = "" +
 	"\x13AddUserBookResponse\x12\x17\n" +
 	"\abook_id\x18\x01 \x01(\tR\x06bookId\"5\n" +
 	"\x1aRemoveBookFromUserResponse\x12\x17\n" +
-	"\abook_id\x18\x01 \x01(\tR\x06bookId2\xe2\x04\n" +
-	"\x0eLibraryService\x129\n" +
+	"\abook_id\x18\x01 \x01(\tR\x06bookId2\xdf\x04\n" +
+	"\vBookService\x129\n" +
 	"\aAddBook\x12\x1b.bookService.AddBookRequest\x1a\x11.bookService.Book\x129\n" +
 	"\aGetBook\x12\x1b.bookService.GetBookRequest\x1a\x11.bookService.Book\x12?\n" +
 	"\n" +
@@ -786,22 +786,22 @@ var file_book_service_proto_goTypes = []any{
 }
 var file_book_service_proto_depIdxs = []int32{
 	0,  // 0: bookService.ListBooksResponse.books:type_name -> bookService.Book
-	1,  // 1: bookService.LibraryService.AddBook:input_type -> bookService.AddBookRequest
-	2,  // 2: bookService.LibraryService.GetBook:input_type -> bookService.GetBookRequest
-	3,  // 3: bookService.LibraryService.UpdateBook:input_type -> bookService.UpdateBookRequest
-	4,  // 4: bookService.LibraryService.DeleteBook:input_type -> bookService.DeleteBookRequest
-	5,  // 5: bookService.LibraryService.ListBooks:input_type -> bookService.ListBooksRequest
-	7,  // 6: bookService.LibraryService.AddBookToUser:input_type -> bookService.UserBookRequest
-	7,  // 7: bookService.LibraryService.RemoveBookFromUser:input_type -> bookService.UserBookRequest
-	8,  // 8: bookService.LibraryService.GetUserBooks:input_type -> bookService.GetUserBooksRequest
-	0,  // 9: bookService.LibraryService.AddBook:output_type -> bookService.Book
-	0,  // 10: bookService.LibraryService.GetBook:output_type -> bookService.Book
-	0,  // 11: bookService.LibraryService.UpdateBook:output_type -> bookService.Book
-	9,  // 12: bookService.LibraryService.DeleteBook:output_type -> bookService.DeleteBookResponse
-	6,  // 13: bookService.LibraryService.ListBooks:output_type -> bookService.ListBooksResponse
-	10, // 14: bookService.LibraryService.AddBookToUser:output_type -> bookService.AddUserBookResponse
-	11, // 15: bookService.LibraryService.RemoveBookFromUser:output_type -> bookService.RemoveBookFromUserResponse
-	6,  // 16: bookService.LibraryService.GetUserBooks:output_type -> bookService.ListBooksResponse
+	1,  // 1: bookService.BookService.AddBook:input_type -> bookService.AddBookRequest
+	2,  // 2: bookService.BookService.GetBook:input_type -> bookService.GetBookRequest
+	3,  // 3: bookService.BookService.UpdateBook:input_type -> bookService.UpdateBookRequest
+	4,  // 4: bookService.BookService.DeleteBook:input_type -> bookService.DeleteBookRequest
+	5,  // 5: bookService.BookService.ListBooks:input_type -> bookService.ListBooksRequest
+	7,  // 6: bookService.BookService.AddBookToUser:input_type -> bookService.UserBookRequest
+	7,  // 7: bookService.BookService.RemoveBookFromUser:input_type -> bookService.UserBookRequest
+	8,  // 8: bookService.BookService.GetUserBooks:input_type -> bookService.GetUserBooksRequest
+	0,  // 9: bookService.BookService.AddBook:output_type -> bookService.Book
+	0,  // 10: bookService.BookService.GetBook:output_type -> bookService.Book
+	0,  // 11: bookService.BookService.UpdateBook:output_type -> bookService.Book
+	9,  // 12: bookService.BookService.DeleteBook:output_type -> bookService.DeleteBookResponse
+	6,  // 13: bookService.BookService.ListBooks:output_type -> bookService.ListBooksResponse
+	10, // 14: bookService.BookService.AddBookToUser:output_type -> bookService.AddUserBookResponse
+	11, // 15: bookService.BookService.RemoveBookFromUser:output_type -> bookService.RemoveBookFromUserResponse
+	6,  // 16: bookService.BookService.GetUserBooks:output_type -> bookService.ListBooksResponse
 	9,  // [9:17] is the sub-list for method output_type
 	1,  // [1:9] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
