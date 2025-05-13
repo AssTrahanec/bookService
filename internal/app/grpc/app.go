@@ -2,10 +2,12 @@ package grpcapp
 
 import (
 	bookServicegrpc "bookService/internal/grpc/book-service"
+	"context"
 	"fmt"
 	"google.golang.org/grpc"
 	"log/slog"
 	"net"
+	"time"
 )
 
 type App struct {
@@ -52,9 +54,27 @@ func (a *App) Run() error {
 	}
 	return nil
 }
-func (a *App) Stop() {
+func (a *App) Stop() { //chat gpt
 	const op = "grpcapp.Stop"
+	const timeout = 5 * time.Second
+
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
 	a.log.With(slog.String("op", op)).
-		Info("grpc server stopped", slog.Int("port", a.port))
-	a.gRPCServer.GracefulStop()
+		Info("grpc server stopping", slog.Int("port", a.port))
+
+	stopped := make(chan struct{})
+	go func() {
+		a.gRPCServer.GracefulStop()
+		close(stopped)
+	}()
+
+	select {
+	case <-stopped:
+		a.log.Info("grpc server stopped gracefully")
+	case <-ctx.Done():
+		a.log.Warn("forcing grpc server shutdown due to timeout")
+		a.gRPCServer.Stop()
+	}
 }

@@ -62,8 +62,8 @@ func (s *serverAPI) RemoveBookFromUser(
 	panic("implement me")
 }
 func (s *serverAPI) GetUserBooks(
-	context.Context,
-	*gen.GetUserBooksRequest,
+	ctx context.Context,
+	req *gen.GetUserBooksRequest,
 ) (*gen.ListBooksResponse, error) {
 	panic("implement me")
 }
