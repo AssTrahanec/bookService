@@ -2,6 +2,7 @@ package book_service
 
 import (
 	gen "bookService/internal/delivery/protos/gen/go"
+	"bookService/internal/domain"
 	"context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -9,28 +10,16 @@ import (
 )
 
 type BookService interface {
-	AddBook(ctx context.Context, book *Book) (*Book, error)
-	GetBook(ctx context.Context, id string) (*Book, error)
-	UpdateBook(ctx context.Context, book *Book) (*Book, error)
+	AddBook(ctx context.Context, book *domain.Book) (*domain.Book, error)
+	GetBook(ctx context.Context, id string) (*domain.Book, error)
+	UpdateBook(ctx context.Context, book *domain.Book) (*domain.Book, error)
 	DeleteBook(ctx context.Context, id string) (string, error)
-	ListBooks(ctx context.Context, filter *BookFilter) ([]*Book, error)
+	ListBooks(ctx context.Context, filter *domain.BookFilter) ([]*domain.Book, error)
 	AddBookToUser(ctx context.Context, userID, bookID string) (string, error)
 	RemoveBookFromUser(ctx context.Context, userID, bookID string) (string, error)
-	GetUserBooks(ctx context.Context, userID string, filter *BookFilter) ([]*Book, error)
-}
-type Book struct {
-	ID              string
-	Title           string
-	Author          string
-	PublicationYear int32
-	Genre           string
+	GetUserBooks(ctx context.Context, userID string, filter *domain.BookFilter) ([]*domain.Book, error)
 }
 
-type BookFilter struct {
-	Author          *string
-	PublicationYear *int32
-	Genre           *string
-}
 type serverAPI struct {
 	gen.UnimplementedBookServiceServer
 	bookService BookService
@@ -40,14 +29,18 @@ func Register(gRPC *grpc.Server, bookService BookService) {
 	gen.RegisterBookServiceServer(gRPC, &serverAPI{bookService: bookService})
 }
 
-//Валидация?Добавить в контракт или вручную каждое поле проверять или как то по другому делают?Пакет мб какой то есть, с котором сразу можно провалидировать
-
 func (s *serverAPI) AddBook(
 	ctx context.Context,
 	req *gen.AddBookRequest,
 ) (*gen.Book, error) {
 
-	book, err := s.bookService.AddBook(ctx, &Book{
+	if req.GetTitle() == "" {
+		return nil, status.Error(codes.InvalidArgument, "title is required")
+	}
+	if req.GetAuthor() == "" {
+		return nil, status.Error(codes.InvalidArgument, "author is required")
+	}
+	book, err := s.bookService.AddBook(ctx, &domain.Book{
 		Title:           req.Title,
 		Author:          req.Author,
 		PublicationYear: req.GetPublicationYear(),
@@ -96,7 +89,7 @@ func (s *serverAPI) UpdateBook(
 		return nil, status.Error(codes.InvalidArgument, "book id is required")
 	}
 
-	book, err := s.bookService.UpdateBook(ctx, &Book{
+	book, err := s.bookService.UpdateBook(ctx, &domain.Book{
 		ID:              req.GetBookId(),
 		Title:           req.GetTitle(),
 		Author:          req.GetAuthor(),
@@ -136,7 +129,7 @@ func (s *serverAPI) ListBooks(
 	ctx context.Context,
 	req *gen.ListBooksRequest,
 ) (*gen.ListBooksResponse, error) {
-	filter := &BookFilter{}
+	filter := &domain.BookFilter{}
 	if req.GetAuthor() != "" {
 		filter.Author = req.Author
 	}
@@ -170,8 +163,11 @@ func (s *serverAPI) AddBookToUser(
 	ctx context.Context,
 	req *gen.UserBookRequest,
 ) (*gen.AddUserBookResponse, error) {
-	if req.GetUserId() == "" || req.GetBookId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "user id and book id are required")
+	if req.GetUserId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "user id is required")
+	}
+	if req.GetBookId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "book id is required")
 	}
 
 	id, err := s.bookService.AddBookToUser(ctx, req.GetUserId(), req.GetBookId())
@@ -186,10 +182,13 @@ func (s *serverAPI) RemoveBookFromUser(
 	ctx context.Context,
 	req *gen.UserBookRequest,
 ) (*gen.RemoveBookFromUserResponse, error) {
-	if req.GetUserId() == "" || req.GetBookId() == "" {
-		return nil, status.Error(codes.InvalidArgument, "user id and book id are required")
+	if req.GetUserId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "user id is required")
 	}
 
+	if req.GetBookId() == "" {
+		return nil, status.Error(codes.InvalidArgument, "book id is required")
+	}
 	id, err := s.bookService.RemoveBookFromUser(ctx, req.GetUserId(), req.GetBookId())
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -205,7 +204,7 @@ func (s *serverAPI) GetUserBooks(
 		return nil, status.Error(codes.InvalidArgument, "user id is required")
 	}
 
-	filter := &BookFilter{}
+	filter := &domain.BookFilter{}
 	if req.GetAuthor() != "" {
 		filter.Author = req.Author
 	}

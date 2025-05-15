@@ -2,8 +2,6 @@ package auth
 
 import (
 	"context"
-	"strings"
-
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/metadata"
@@ -11,7 +9,8 @@ import (
 )
 
 const (
-	AdminRole = "admin"
+	adminRole = "admin"
+	userRole  = "user_role"
 )
 
 func AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
@@ -29,11 +28,11 @@ func AuthInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServe
 		return nil, status.Error(codes.PermissionDenied, "role not provided")
 	}
 
-	if isAdminMethod(info.FullMethod) && roles[0] != AdminRole {
+	if isAdminMethod(info.FullMethod) && roles[0] != adminRole {
 		return nil, status.Error(codes.PermissionDenied, "admin role required")
 	}
 
-	newCtx := context.WithValue(ctx, "user_role", roles[0])
+	newCtx := context.WithValue(ctx, userRole, roles[0])
 
 	return handler(newCtx, req)
 }
@@ -58,7 +57,7 @@ func isAdminMethod(method string) bool {
 		"/bookService.BookService/DeleteBook",
 	}
 	for _, m := range adminMethods {
-		if strings.HasPrefix(method, m) {
+		if method == m {
 			return true
 		}
 	}
