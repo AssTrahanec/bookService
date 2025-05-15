@@ -2,7 +2,7 @@ package book_service
 
 import (
 	gen "bookService/internal/delivery/protos/gen/go"
-	"bookService/internal/domain"
+	"bookService/internal/domain/models"
 	"context"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -10,14 +10,14 @@ import (
 )
 
 type BookService interface {
-	AddBook(ctx context.Context, book *domain.Book) (*domain.Book, error)
-	GetBook(ctx context.Context, id string) (*domain.Book, error)
-	UpdateBook(ctx context.Context, book *domain.Book) (*domain.Book, error)
+	AddBook(ctx context.Context, book *models.Book) (*models.Book, error)
+	GetBook(ctx context.Context, id string) (*models.Book, error)
+	UpdateBook(ctx context.Context, book *models.Book) (*models.Book, error)
 	DeleteBook(ctx context.Context, id string) (string, error)
-	ListBooks(ctx context.Context, filter *domain.BookFilter) ([]*domain.Book, error)
+	ListBooks(ctx context.Context, filter *models.BookFilter) ([]*models.Book, error)
 	AddBookToUser(ctx context.Context, userID, bookID string) (string, error)
 	RemoveBookFromUser(ctx context.Context, userID, bookID string) (string, error)
-	GetUserBooks(ctx context.Context, userID string, filter *domain.BookFilter) ([]*domain.Book, error)
+	GetUserBooks(ctx context.Context, userID string, filter *models.BookFilter) ([]*models.Book, error)
 }
 
 type serverAPI struct {
@@ -40,7 +40,7 @@ func (s *serverAPI) AddBook(
 	if req.GetAuthor() == "" {
 		return nil, status.Error(codes.InvalidArgument, "author is required")
 	}
-	book, err := s.bookService.AddBook(ctx, &domain.Book{
+	book, err := s.bookService.AddBook(ctx, &models.Book{
 		Title:           req.Title,
 		Author:          req.Author,
 		PublicationYear: req.GetPublicationYear(),
@@ -89,7 +89,7 @@ func (s *serverAPI) UpdateBook(
 		return nil, status.Error(codes.InvalidArgument, "book id is required")
 	}
 
-	book, err := s.bookService.UpdateBook(ctx, &domain.Book{
+	book, err := s.bookService.UpdateBook(ctx, &models.Book{
 		ID:              req.GetBookId(),
 		Title:           req.GetTitle(),
 		Author:          req.GetAuthor(),
@@ -129,7 +129,7 @@ func (s *serverAPI) ListBooks(
 	ctx context.Context,
 	req *gen.ListBooksRequest,
 ) (*gen.ListBooksResponse, error) {
-	filter := &domain.BookFilter{}
+	filter := &models.BookFilter{}
 	if req.GetAuthor() != "" {
 		filter.Author = req.Author
 	}
@@ -204,7 +204,7 @@ func (s *serverAPI) GetUserBooks(
 		return nil, status.Error(codes.InvalidArgument, "user id is required")
 	}
 
-	filter := &domain.BookFilter{}
+	filter := &models.BookFilter{}
 	if req.GetAuthor() != "" {
 		filter.Author = req.Author
 	}

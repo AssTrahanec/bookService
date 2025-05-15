@@ -1,7 +1,7 @@
 package grpcapp
 
 import (
-	"bookService/internal/auth"
+	interceptors "bookService/internal/delivery/interceptors"
 	bookServicegrpc "bookService/internal/grpc/book-service"
 	"context"
 	"fmt"
@@ -22,7 +22,12 @@ func New(
 	port int,
 	bookService bookServicegrpc.BookService,
 ) *App {
-	gRPCServer := grpc.NewServer(grpc.UnaryInterceptor(auth.AuthInterceptor))
+	gRPCServer := grpc.NewServer(
+		grpc.ChainUnaryInterceptor(
+			interceptors.AuthInterceptor,
+			interceptors.MetricsInterceptor,
+		),
+	)
 
 	bookServicegrpc.Register(gRPCServer, bookService)
 	return &App{
