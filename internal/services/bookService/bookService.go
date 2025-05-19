@@ -145,7 +145,7 @@ func (s *BookService) AddBookToUser(ctx context.Context, userID, bookID string) 
 		slog.String("op", op),
 		slog.String("user_id", userID))
 
-	savedBookID, err := s.bookSaver.AddBookToUser(ctx, bookID, userID)
+	savedBookID, err := s.bookSaver.AddBookToUser(ctx, userID, bookID)
 
 	if err != nil {
 		log.Error("failed to add book to user", slog.String("error", err.Error()))
