@@ -237,10 +237,11 @@ func (s *Storage) DeleteBook(ctx context.Context, id string) (string, error) {
 func (s *Storage) AddBookToUser(ctx context.Context, userID, bookID string) (string, error) {
 	const op = "postgres.AddBookToUser"
 	const query = `
-        DELETE FROM users_books 
-        WHERE user_id = $1 AND book_id = $2
-        RETURNING book_id
-    `
+		INSERT INTO users_books (user_id, book_id)
+		VALUES ($1, $2)
+		ON CONFLICT (user_id, book_id) DO NOTHING
+		RETURNING book_id
+	`
 
 	var returnedBookID string
 	err := s.db.QueryRowContext(ctx, query, userID, bookID).Scan(&returnedBookID)
@@ -250,6 +251,7 @@ func (s *Storage) AddBookToUser(ctx context.Context, userID, bookID string) (str
 		}
 		return "", fmt.Errorf("%s: %w", op, err)
 	}
+
 	return returnedBookID, nil
 }
 func (s *Storage) RemoveBookFromUser(ctx context.Context, userID, bookID string) (string, error) {
