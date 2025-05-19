@@ -1,0 +1,172 @@
+package bookService
+
+import (
+	"bookService/internal/domain/models"
+	"context"
+	"fmt"
+	"log/slog"
+)
+
+type BookService struct {
+	log          *slog.Logger
+	bookSaver    BookSaver
+	bookProvider BookProvider
+}
+
+type BookSaver interface {
+	AddBook(ctx context.Context, book *models.Book) (*models.Book, error)
+	UpdateBook(ctx context.Context, book *models.Book) (*models.Book, error)
+	DeleteBook(ctx context.Context, id string) (string, error)
+	RemoveBookFromUser(ctx context.Context, userID, bookID string) (string, error)
+	AddBookToUser(ctx context.Context, userID, bookID string) (string, error)
+}
+type BookProvider interface {
+	GetBook(ctx context.Context, id string) (*models.Book, error)
+	ListBooks(ctx context.Context, filter *models.BookFilter) ([]*models.Book, error)
+	GetUserBooks(ctx context.Context, userID string, filter *models.BookFilter) ([]*models.Book, error)
+}
+
+func New(
+	bookSaver BookSaver,
+	bookProvider BookProvider,
+	log *slog.Logger,
+) *BookService {
+	return &BookService{
+		bookSaver:    bookSaver,
+		bookProvider: bookProvider,
+		log:          log,
+	}
+}
+
+func (s *BookService) AddBook(ctx context.Context, book *models.Book) (*models.Book, error) {
+	const op = "BookService.AddBook"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("id", book.ID),
+	)
+
+	book, err := s.bookSaver.AddBook(ctx, book)
+	if err != nil {
+		log.Error("failed AddBook", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+	log.Info("added book")
+	return book, nil
+}
+func (s *BookService) UpdateBook(ctx context.Context, book *models.Book) (*models.Book, error) {
+	const op = "BookService.UpdateBook"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("id", book.ID),
+	)
+
+	updatedBook, err := s.bookSaver.UpdateBook(ctx, book)
+	if err != nil {
+		log.Error("failed to update book", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("book updated successfully")
+	return updatedBook, nil
+}
+func (s *BookService) DeleteBook(ctx context.Context, id string) (string, error) {
+	const op = "BookService.DeleteBook"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("id", id),
+	)
+
+	id, err := s.bookSaver.DeleteBook(ctx, id)
+	if err != nil {
+		log.Error("failed to delete book", slog.String("error", err.Error()))
+		return "", fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("book deleted successfully")
+	return id, nil
+}
+func (s *BookService) GetBook(ctx context.Context, id string) (*models.Book, error) {
+	const op = "BookService.GetBook"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("id", id),
+	)
+
+	book, err := s.bookProvider.GetBook(ctx, id)
+	if err != nil {
+		log.Error("failed to get book", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Debug("book retrieved")
+	return book, nil
+}
+func (s *BookService) ListBooks(ctx context.Context, filter *models.BookFilter) ([]*models.Book, error) {
+	const op = "BookService.ListBooks"
+
+	log := s.log.With(
+		slog.String("op", op),
+	)
+
+	books, err := s.bookProvider.ListBooks(ctx, filter)
+	if err != nil {
+		log.Error("failed to list books", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("listed books", slog.Int("count", len(books)))
+	return books, nil
+}
+func (s *BookService) GetUserBooks(ctx context.Context, userID string, filter *models.BookFilter) ([]*models.Book, error) {
+	const op = "BookService.GetUserBooks"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("user_id", userID),
+	)
+
+	books, err := s.bookProvider.GetUserBooks(ctx, userID, filter)
+	if err != nil {
+		log.Error("failed to get user books", slog.String("error", err.Error()))
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
+
+	log.Info("retrieved user books", slog.Int("count", len(books)))
+	return books, nil
+}
+func (s *BookService) AddBookToUser(ctx context.Context, userID, bookID string) (string, error) {
+	const op = "BookService.AddBookToUser"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("user_id", userID))
+
+	savedBookID, err := s.bookSaver.AddBookToUser(ctx, bookID, userID)
+
+	if err != nil {
+		log.Error("failed to add book to user", slog.String("error", err.Error()))
+	}
+
+	log.Info("added book to user", slog.String("savedBookID", savedBookID))
+	return savedBookID, err
+}
+func (s *BookService) RemoveBookFromUser(ctx context.Context, userID, bookID string) (string, error) {
+	const op = "BookService.RemoveBookFromUser"
+
+	log := s.log.With(
+		slog.String("op", op),
+		slog.String("user_id", userID))
+
+	deletedBookId, err := s.bookSaver.RemoveBookFromUser(ctx, userID, bookID)
+
+	if err != nil {
+		log.Error("failed to remove book from user", slog.String("error", err.Error()))
+	}
+
+	log.Info("removed book from user", slog.String("deletedBookId", deletedBookId))
+	return deletedBookId, err
+}

@@ -1,7 +1,10 @@
 package app
 
 import (
+	"bookService/config"
 	grpcapp "bookService/internal/app/grpc"
+	bookService "bookService/internal/services/bookService"
+	"bookService/internal/storage/postres"
 	"log/slog"
 )
 
@@ -12,8 +15,14 @@ type App struct {
 func New(
 	log *slog.Logger,
 	grpcPort int,
+	config *config.Config,
 ) *App {
-	grpcApp := grpcapp.New(log, grpcPort)
+	storage, err := postres.New(config.DB)
+	if err != nil {
+		panic(err)
+	}
+	libraryService := bookService.New(storage, storage, log)
+	grpcApp := grpcapp.New(log, grpcPort, libraryService)
 	return &App{
 		GRPCSrv: grpcApp,
 	}

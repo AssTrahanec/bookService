@@ -20,7 +20,6 @@ func MetricsInterceptor(
 
 	resp, err := handler(ctx, req)
 
-	// Записываем метрики
 	statusCode := codes.OK.String()
 	if err != nil {
 		if st, ok := status.FromError(err); ok {
@@ -28,7 +27,7 @@ func MetricsInterceptor(
 		}
 	}
 
-	methodName := info.FullMethod // Например: "/bookService.BookService/GetBook"
+	methodName := info.FullMethod
 	metrics.GRPCRequestsTotal.WithLabelValues(methodName, statusCode).Inc()
 	metrics.GRPCDuration.WithLabelValues(methodName).Observe(time.Since(start).Seconds())
 
