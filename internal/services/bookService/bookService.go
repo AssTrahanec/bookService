@@ -149,10 +149,11 @@ func (s *BookService) AddBookToUser(ctx context.Context, userID, bookID string) 
 
 	if err != nil {
 		log.Error("failed to add book to user", slog.String("error", err.Error()))
+		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
 	log.Info("added book to user", slog.String("savedBookID", savedBookID))
-	return savedBookID, err
+	return savedBookID, nil
 }
 func (s *BookService) RemoveBookFromUser(ctx context.Context, userID, bookID string) (string, error) {
 	const op = "BookService.RemoveBookFromUser"
@@ -165,8 +166,9 @@ func (s *BookService) RemoveBookFromUser(ctx context.Context, userID, bookID str
 
 	if err != nil {
 		log.Error("failed to remove book from user", slog.String("error", err.Error()))
+		return "", fmt.Errorf("%s: %w", op, err)
 	}
 
 	log.Info("removed book from user", slog.String("deletedBookId", deletedBookId))
-	return deletedBookId, err
+	return deletedBookId, nil
 }
