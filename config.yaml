@@ -9,3 +9,9 @@ db:
   dbname: "book_service_db"
   sslmode: "disable"
   password: "qwerty"
+redis_db:
+  addr: "localhost:6379"
+  password: "qwerty"
+  db: 0
+  ttl: 60
+  username: "redis"

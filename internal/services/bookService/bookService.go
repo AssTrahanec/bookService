@@ -11,6 +11,7 @@ type BookService struct {
 	log          *slog.Logger
 	bookSaver    BookSaver
 	bookProvider BookProvider
+	bookCache    BookCache
 }
 
 type BookSaver interface {
@@ -25,15 +26,22 @@ type BookProvider interface {
 	ListBooks(ctx context.Context, filter *models.BookFilter) ([]*models.Book, error)
 	GetUserBooks(ctx context.Context, userID string, filter *models.BookFilter) ([]*models.Book, error)
 }
+type BookCache interface {
+	GetBook(ctx context.Context, id string) (*models.Book, error)
+	SetBook(ctx context.Context, key string, book *models.Book) error
+	InvalidateBook(ctx context.Context, key string) error
+}
 
 func New(
 	bookSaver BookSaver,
 	bookProvider BookProvider,
+	bookCache BookCache,
 	log *slog.Logger,
 ) *BookService {
 	return &BookService{
 		bookSaver:    bookSaver,
 		bookProvider: bookProvider,
+		bookCache:    bookCache,
 		log:          log,
 	}
 }
@@ -68,6 +76,11 @@ func (s *BookService) UpdateBook(ctx context.Context, book *models.Book) (*model
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
+	cacheKey := fmt.Sprintf("book:%s", book.ID)
+	if err := s.bookCache.InvalidateBook(ctx, cacheKey); err != nil {
+		log.Warn("failed to invalidate cache", slog.String("error", err.Error()))
+	}
+
 	log.Info("book updated successfully")
 	return updatedBook, nil
 }
@@ -95,6 +108,15 @@ func (s *BookService) GetBook(ctx context.Context, id string) (*models.Book, err
 		slog.String("op", op),
 		slog.String("id", id),
 	)
+	cacheKey := fmt.Sprintf("book:%s", id)
+	cachedBook, err := s.bookCache.GetBook(ctx, cacheKey)
+	if err != nil {
+		log.Warn("cache get error", slog.String("error", err.Error()))
+	}
+	if cachedBook != nil {
+		log.Debug("book retrieved from cache")
+		return cachedBook, nil
+	}
 
 	book, err := s.bookProvider.GetBook(ctx, id)
 	if err != nil {
@@ -102,6 +124,9 @@ func (s *BookService) GetBook(ctx context.Context, id string) (*models.Book, err
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 
+	if err := s.bookCache.SetBook(ctx, cacheKey, book); err != nil {
+		log.Warn("failed to cache book", slog.String("error", err.Error()))
+	}
 	log.Debug("book retrieved")
 	return book, nil
 }
