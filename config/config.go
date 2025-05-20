@@ -8,9 +8,10 @@ import (
 )
 
 type Config struct {
-	Env  string     `yaml:"env" env-default:"local"`
-	GRPC GRPCConfig `yaml:"grpc"`
-	DB   DBConfig   `yaml:"db"`
+	Env   string      `yaml:"env" env-default:"local"`
+	GRPC  GRPCConfig  `yaml:"grpc"`
+	DB    DBConfig    `yaml:"db"`
+	Cache RedisConfig `yaml:"redis_db"`
 }
 type GRPCConfig struct {
 	Port    int           `yaml:"port"`
@@ -23,6 +24,14 @@ type DBConfig struct {
 	Password string `yaml:"password"`
 	DBName   string `yaml:"dbname"`
 	SSLMode  string `yaml:"sslmode"`
+}
+
+type RedisConfig struct {
+	Addr     string `yaml:"addr"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
+	Username string `yaml:"username"`
+	TTL      int    `yaml:"ttl"`
 }
 
 func MustLoad() *Config {
