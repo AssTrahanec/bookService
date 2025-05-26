@@ -4,7 +4,7 @@ import (
 	"bookService/config"
 	grpcapp "bookService/internal/app/grpc"
 	bookService "bookService/internal/services/bookService"
-	"bookService/internal/storage/postres"
+	"bookService/internal/storage/postgres"
 	"bookService/internal/storage/redis"
 	"log/slog"
 )
@@ -18,7 +18,7 @@ func New(
 	grpcPort int,
 	config *config.Config,
 ) *App {
-	storage, err := postres.New(config.DB)
+	storage, err := postgres.New(config.DB)
 	cache, err := redis.New(config.Cache)
 	if err != nil {
 		panic(err)

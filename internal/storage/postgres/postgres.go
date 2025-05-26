@@ -1,4 +1,4 @@
-package postres
+package postgres
 
 import (
 	"bookService/config"
