@@ -3,6 +3,7 @@ package main
 import (
 	"bookService/config"
 	"bookService/internal/app"
+	"bookService/internal/kafka"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -19,6 +20,8 @@ func main() {
 	cfg := config.MustLoad()
 
 	log := setupLogger(cfg.Env)
+
+	kafka.InitKafkaProducer(cfg.Kafka.Brokers, cfg.Kafka.Topic)
 
 	log.Info("Starting up")
 

@@ -15,3 +15,7 @@ redis_db:
   db: 0
   ttl: 60
   username: "redis"
+kafka:
+  brokers:
+    - "localhost:9092"
+  topic: "book-created"

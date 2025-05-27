@@ -2,6 +2,7 @@ package bookService
 
 import (
 	"bookService/internal/domain/models"
+	"bookService/internal/kafka"
 	"context"
 	"fmt"
 	"log/slog"
@@ -60,6 +61,9 @@ func (s *BookService) AddBook(ctx context.Context, book *models.Book) (*models.B
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	log.Info("added book")
+	if err := kafka.PublishBookCreatedEvent(book.ID, book.Title); err != nil {
+		log.Error("failed to publish Kafka event", slog.String("error", err.Error()))
+	}
 	return book, nil
 }
 func (s *BookService) UpdateBook(ctx context.Context, book *models.Book) (*models.Book, error) {

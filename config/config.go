@@ -12,6 +12,7 @@ type Config struct {
 	GRPC  GRPCConfig  `yaml:"grpc"`
 	DB    DBConfig    `yaml:"db"`
 	Cache RedisConfig `yaml:"redis_db"`
+	Kafka KafkaConfig `yaml:"kafka"`
 }
 type GRPCConfig struct {
 	Port    int           `yaml:"port"`
@@ -32,6 +33,11 @@ type RedisConfig struct {
 	DB       int    `yaml:"db"`
 	Username string `yaml:"username"`
 	TTL      int    `yaml:"ttl"`
+}
+
+type KafkaConfig struct {
+	Brokers []string `yaml:"brokers"`
+	Topic   string   `yaml:"topic"`
 }
 
 func MustLoad() *Config {
